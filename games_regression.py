@@ -36,4 +36,23 @@ onehotencorder = ColumnTransformer(transformers=[("OneHot", OneHotEncoder(), [0,
 predictors = onehotencorder.fit_transform(predictors).toarray()
 
 
+# Structuring the neural network
+input_layer = Input(shape = (61,))
+# 61 entradas, 3 saidas... divide por 2
+# (61 + 3) / 2 = 32
+hidden_layer1 = Dense(units = 32, activation = 'sigmoid')(input_layer)
+hidden_layer2 = Dense(units = 32, activation = 'sigmoid')(hidden_layer1)
+output_layer1 = Dense(units = 1, activation = 'linear')(hidden_layer2)
+output_layer2 = Dense(units = 1, activation = 'linear')(hidden_layer2)
+output_layer3 = Dense(units = 1, activation = 'linear')(hidden_layer2)
+
+regressor = Model(inputs = input_layer, 
+                  outputs = [output_layer1, output_layer2, output_layer3])
+regressor.compile(optimizer = 'adam', loss = 'mse')
+regressor.fit(predictors, [sale_na, sale_eu, sale_jp], 
+              epochs = 5000, batch_size = 100)
+
+prediction_na, prediction_eu, prediction_jp = regressor.predict(predictors) 
+
+
 
